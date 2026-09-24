@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1217" />
+    <meta name="description" content="可旋转、缩放、剖视的四冲程柴油机三维仿真。观察活塞、连杆、曲轴、气门及柴油压燃过程。" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2369ddbb'/%3E%3Cpath d='M18 15h28v17H18zm14 17v13m-10 4h20' fill='none' stroke='%230d2623' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <!--
+      Bundled Three.js and addons — The MIT License
+      Copyright © 2010-2026 three.js authors
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+    -->
+    <title>MECHANICA · 四冲程柴油机 3D 仿真</title>
+  </head>
+  <body>
+    <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="i-engine" viewBox="0 0 24 24"><path d="M7 3h10v7H7zM6 6h12M12 10v7m-4 3h8m-4-3v3M4 3v7m16-7v7" /></symbol>
+      <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 3 9 5v9l-9 5-9-5V8zm0 10 9-5M12 13 3 8m9 5v9M7.5 5.5l9 5" /></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 10 5-10 5L2 8zm-9 9 9 5 9-5M3 16l9 5 9-5" /></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6" /></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none" /></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3.5" /></symbol>
+      <symbol id="i-step" viewBox="0 0 24 24"><path d="m5 5 10 7-10 7Zm14 0v14" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" /></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v18m-6-6 6 6 6-6M4 5h3m10 0h3" /></symbol>
+      <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 21V3m-6 6 6-6 6 6M4 19h3m10 0h3" /></symbol>
+      <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c2 5-1 7 2 9 1-1 2-3 2-5 5 4 6 8 4 12-2 4-12 5-15-1-2-5 2-8 3-10 0 3 1 4 2 4 2-2 3-5 2-9Z" /></symbol>
+      <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M4 17h5a2 2 0 1 1-2 2" /></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v6m0-10v.2" /></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-3-2-7-2-10-1v15c4-1 7-1 10 1 3-2 6-2 10-1V4c-3-1-7-1-10 1Zm0 0v15" /></symbol>
+      <symbol id="i-mouse" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="6" /><path d="M12 2v7m-6 0h12" /></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6" /></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M6 16l4-6 4 3 6-8" /></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6m8 4v6" /></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" /></symbol>
+    </svg>
+
+    <a class="skip-link" href="#simulator">跳到三维仿真</a>
+    <header class="site-header">
+      <a class="brand" href="#simulator" aria-label="MECHANICA 机械原理实验室">
+        <span class="brand-mark"><svg class="icon"><use href="#i-engine" /></svg></span>
+        <span><strong>MECHANICA<span class="brand-dot">.</span></strong><small>机械原理实验室</small></span>
+      </a>
+      <nav class="header-nav" aria-label="主导航">
+        <a class="nav-active" href="#simulator"><svg class="icon"><use href="#i-cube" /></svg>三维仿真</a>
+        <button type="button" data-dialog="principle-dialog"><svg class="icon"><use href="#i-book" /></svg>工作原理</button>
+        <button type="button" data-dialog="help-dialog"><svg class="icon"><use href="#i-info" /></svg>操作指南</button>
+      </nav>
+      <span class="render-badge"><span class="status-dot"></span><span id="renderer-status">3D 引擎初始化</span></span>
+    </header>
+
+    <main id="simulator" class="page-shell">
+      <section class="page-intro" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow">INTERACTIVE ENGINE LAB <span>/</span> EXPERIMENT 01</div>
+          <div class="title-row"><h1 id="page-title">四冲程柴油机</h1><span class="outline-badge">3D SIMULATION</span></div>
+          <p>从一次往复，看懂动力的诞生。自由探索发动机的每一个工作瞬间。</p>
+        </div>
+        <button id="reset-all" class="button button-secondary" type="button"><svg class="icon"><use href="#i-reset" /></svg>重置实验</button>
+      </section>
+
+      <div class="lab-layout">
+        <aside class="options-column" aria-label="模型与仿真设置">
+          <section class="panel settings-panel">
+            <div class="panel-heading"><h2><svg class="icon"><use href="#i-layers" /></svg>模型显示</h2><span class="section-index">01</span></div>
+            <div class="segmented view-modes" role="group" aria-label="模型显示模式">
+              <button type="button" data-mode="cutaway" aria-pressed="true">剖视</button>
+              <button type="button" data-mode="xray" aria-pressed="false">透视</button>
+              <button type="button" data-mode="solid" aria-pressed="false">实体</button>
+            </div>
+            <p class="setting-hint" id="mode-description">剖开前半侧缸体，观察内部运动。</p>
+            <div class="toggle-list">
+              <label class="toggle-row" for="show-labels"><span>部件标注</span><input id="show-labels" type="checkbox" checked /><span class="switch" aria-hidden="true"></span></label>
+              <label class="toggle-row" for="show-particles"><span>气体与喷油粒子</span><input id="show-particles" type="checkbox" checked /><span class="switch" aria-hidden="true"></span></label>
+              <label class="toggle-row" for="auto-orbit"><span>自动环绕</span><input id="auto-orbit" type="checkbox" /><span class="switch" aria-hidden="true"></span></label>
+            </div>
+          </section>
+
+          <section class="panel parts-panel">
+            <div class="panel-heading"><h2><svg class="icon"><use href="#i-cube" /></svg>探索部件</h2><span class="subtle">点击高亮</span></div>
+            <div class="parts-list" role="group" aria-label="选择发动机部件">
+              <button type="button" data-part="cylinder" aria-pressed="false"><span class="part-dot" style="--part-color:#629889"></span><span>气缸体<small>CYLINDER</small></span><svg class="icon"><use href="#i-arrow" /></svg></button>
+              <button type="button" data-part="piston" aria-pressed="false"><span class="part-dot" style="--part-color:#c3d2de"></span><span>活塞<small>PISTON</small></span><svg class="icon"><use href="#i-arrow" /></svg></button>
+              <button type="button" data-part="rod" aria-pressed="false"><span class="part-dot" style="--part-color:#bba783"></span><span>连杆<small>CONNECTING ROD</small></span><svg class="icon"><use href="#i-arrow" /></svg></button>
+              <button type="button" data-part="crank" aria-pressed="false"><span class="part-dot" style="--part-color:#9babb7"></span><span>曲轴与飞轮<small>CRANKSHAFT</small></span><svg class="icon"><use href="#i-arrow" /></svg></button>
+              <button type="button" data-part="valves" aria-pressed="false"><span class="part-dot" style="--part-color:#55cbdc"></span><span>进排气门<small>VALVES</small></span><svg class="icon"><use href="#i-arrow" /></svg></button>
+              <button type="button" data-part="injector" aria-pressed="false"><span class="part-dot" style="--part-color:#f5ad66"></span><span>喷油器<small>FUEL INJECTOR</small></span><svg class="icon"><use href="#i-arrow" /></svg></button>
+            </div>
+            <div class="part-note" id="part-description">选择部件，查看它如何参与动力传递。再次点击可取消高亮。</div>
+          </section>
+
+          <section class="panel parameters-panel">
+            <div class="panel-heading"><h2><svg class="icon"><use href="#i-settings" /></svg>仿真参数</h2><span class="subtle">单缸直喷</span></div>
+            <label class="rpm-label" for="rpm"><span>发动机转速</span><span><output id="rpm-value" for="rpm">1,200</output><small>rpm</small></span></label>
+            <input id="rpm" type="range" min="600" max="2400" value="1200" step="100" />
+            <div class="range-ticks"><span>600</span><span>2,400 rpm</span></div>
+            <dl class="engine-specs"><div><dt>气缸直径</dt><dd>86 <span>mm</span></dd></div><div><dt>活塞行程</dt><dd>90 <span>mm</span></dd></div><div><dt>压缩比</dt><dd>18 <span>: 1</span></dd></div><div><dt>排量</dt><dd>0.523 <span>L</span></dd></div></dl>
+          </section>
+        </aside>
+
+        <div class="simulation-column">
+          <section class="panel viewport-panel" id="viewport-panel" aria-label="三维模型与播放控制">
+            <div class="viewport-toolbar">
+              <div class="viewport-title"><svg class="icon"><use href="#i-cube" /></svg><h2>三维观察窗</h2><span id="view-mode-label">剖视模式</span></div>
+              <div class="viewport-tools" role="group" aria-label="三维视图控制">
+                <button id="zoom-in" class="icon-button" type="button" aria-label="放大模型" title="放大模型"><svg class="icon"><use href="#i-plus" /></svg></button>
+                <button id="zoom-out" class="icon-button" type="button" aria-label="缩小模型" title="缩小模型"><svg class="icon"><use href="#i-minus" /></svg></button>
+                <span class="toolbar-divider"></span>
+                <button id="reset-camera" class="icon-button" type="button" aria-label="重置视角" title="重置视角 (R)"><svg class="icon"><use href="#i-reset" /></svg></button>
+                <button id="fullscreen" class="icon-button" type="button" aria-label="全屏观察" title="全屏观察"><svg class="icon"><use href="#i-expand" /></svg></button>
+              </div>
+            </div>
+            <div class="scene-container" id="scene-container" aria-busy="true">
+              <div class="viewport-watermark" aria-hidden="true">DIESEL<span>01 / FOUR-STROKE</span></div>
+              <div class="scene-label-layer" id="label-layer" aria-hidden="true"></div>
+              <p id="keyboard-scene-help" class="sr-only">观察窗聚焦后，W、A、S、D 旋转视角，Shift 加 W、A、S、D 平移，加减号缩放，R 重置视角；空格播放或暂停，左右方向键单步。按 Tab 可离开观察窗。</p>
+              <div class="scene-topline"><span class="phase-chip" id="phase-chip"><span class="status-dot"></span><span id="scene-phase">进气冲程</span></span><span class="scene-tech-label">PERSPECTIVE · WEBGL 2</span></div>
+              <div class="scene-loading" id="scene-message" role="status"><span class="loader"></span><strong>正在构建三维发动机</strong><span>几何建模 · 材质 · 灯光</span></div>
+              <div class="scene-bottomline">
+                <div class="camera-presets segmented" role="group" aria-label="预设视角"><button type="button" data-camera="perspective" aria-pressed="true">立体</button><button type="button" data-camera="front" aria-pressed="false">正视</button><button type="button" data-camera="side" aria-pressed="false">侧视</button></div>
+                <p id="scene-instructions"><svg class="icon"><use href="#i-mouse" /></svg>拖拽旋转<span>·</span>滚轮缩放</p>
+                <span class="scene-scale">3D <span>教学模型</span></span>
+              </div>
+            </div>
+
+            <div class="playback-panel">
+              <div class="playback-top">
+                <div class="transport-controls"><button id="play-pause" class="play-button" type="button" aria-label="暂停仿真" title="播放 / 暂停 (空格)"><svg class="icon"><use href="#i-pause" /></svg><span>暂停</span></button><button id="reset-cycle" class="icon-button" type="button" aria-label="回到进气起点" title="回到进气起点"><svg class="icon"><use href="#i-reset" /></svg></button><button id="step-forward" class="icon-button" type="button" aria-label="前进10度" title="前进 10° (右方向键)"><svg class="icon"><use href="#i-step" /></svg></button></div>
+                <div class="angle-readout"><span>曲轴转角</span><strong id="angle-value">0<span>°</span></strong><small>/ 720°</small></div>
+              </div>
+              <label class="sr-only" for="crank-angle">曲轴转角</label>
+              <div class="timeline-wrap"><div class="timeline-segments" aria-hidden="true"><i></i><i></i><i></i><i></i></div><input id="crank-angle" type="range" min="0" max="720" step="1" value="0" aria-describedby="timeline-hint" /></div>
+              <div class="timeline-ticks" aria-hidden="true"><span>0°</span><span>180°</span><span>360°</span><span>540°</span><span>720°</span></div>
+              <div class="playback-bottom"><span id="timeline-hint"><span class="small-dot"></span><span id="time-scale">教学慢放 · 1/60 实时速度</span></span><div class="speed-controls" role="group" aria-label="演示速度"><span>倍速</span><button type="button" data-speed="0.25" aria-pressed="false">0.25×</button><button type="button" data-speed="0.5" aria-pressed="false">0.5×</button><button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2" aria-pressed="false">2×</button></div></div>
+            </div>
+          </section>
+
+          <section class="cycle-section" aria-labelledby="cycle-heading">
+            <div class="cycle-heading"><h2 id="cycle-heading">一个循环，四个冲程</h2><span>点击冲程，定格观察 <svg class="icon"><use href="#i-arrow" /></svg></span></div>
+            <div class="stroke-cards" role="group" aria-label="选择工作冲程">
+              <button type="button" class="stroke-card" data-stroke="0" aria-pressed="true" style="--stroke-color:#55cbdc"><div><span class="stroke-number">01</span><svg class="icon"><use href="#i-down" /></svg></div><strong>进气<span>INTAKE</span></strong><small>0° — 180°</small><span class="stroke-line"></span></button>
+              <button type="button" class="stroke-card" data-stroke="1" aria-pressed="false" style="--stroke-color:#b3a0f3"><div><span class="stroke-number">02</span><svg class="icon"><use href="#i-up" /></svg></div><strong>压缩<span>COMPRESSION</span></strong><small>180° — 360°</small><span class="stroke-line"></span></button>
+              <button type="button" class="stroke-card" data-stroke="2" aria-pressed="false" style="--stroke-color:#f5ad66"><div><span class="stroke-number">03</span><svg class="icon"><use href="#i-flame" /></svg></div><strong>做功<span>POWER</span></strong><small>360° — 540°</small><span class="stroke-line"></span></button>
+              <button type="button" class="stroke-card" data-stroke="3" aria-pressed="false" style="--stroke-color:#96a7b8"><div><span class="stroke-number">04</span><svg class="icon"><use href="#i-wind" /></svg></div><strong>排气<span>EXHAUST</span></strong><small>540° — 720°</small><span class="stroke-line"></span></button>
+            </div>
+          </section>
+        </div>
+
+        <aside class="telemetry-column" aria-label="运行状态与教学数据">
+          <section class="panel state-panel">
+            <div class="panel-heading"><h2><svg class="icon"><use href="#i-chart" /></svg>运行状态</h2><span id="playback-state" class="live-label"><span class="status-dot"></span>运行中</span></div>
+            <div class="current-stroke"><div><span class="eyebrow" id="stroke-english">INTAKE STROKE</span><h3 id="stroke-name">进气冲程</h3></div><span class="stroke-counter" id="stroke-counter">01<span>/ 04</span></span></div>
+            <p class="stroke-description" id="stroke-description">进气门打开，活塞向下运动，将新鲜空气吸入气缸。</p>
+            <div class="stroke-progress" aria-hidden="true"><span id="stroke-progress"></span></div>
+            <div class="stroke-progress-meta"><span id="direction-label">活塞下行</span><span id="phase-progress">0%</span></div>
+            <div class="valve-statuses"><div><span><i class="valve-dot intake-dot"></i>进气门</span><strong id="intake-status">开启</strong></div><div><span><i class="valve-dot exhaust-dot"></i>排气门</span><strong id="exhaust-status">关闭</strong></div><div><span><i class="valve-dot injector-dot"></i>喷油器</span><strong id="injector-status">待命</strong></div></div>
+            <div class="energy-flow"><svg class="icon"><use href="#i-spark" /></svg><span id="energy-label">曲轴带动活塞 · 吸入空气</span></div>
+          </section>
+
+          <section class="panel metrics-panel">
+            <div class="panel-heading"><h2>缸内参数</h2><span class="mini-badge">教学估算</span></div>
+            <div class="metric-grid"><div><span>气体压力</span><strong id="pressure-value">1.01</strong><small>bar · 绝对压力</small></div><div><span>气体温度</span><strong id="temperature-value">27</strong><small>°C</small></div><div><span>活塞位移</span><strong id="displacement-value">0.0</strong><small>mm · 距上止点</small></div><div><span>缸内容积</span><strong id="volume-value">30.8</strong><small>cm³</small></div></div>
+          </section>
+
+          <section class="panel chart-panel">
+            <div class="panel-heading"><h2>压力–容积图</h2><span class="chart-symbol">p–V</span></div>
+            <svg id="pv-chart" viewBox="0 0 280 180" role="img" aria-labelledby="pv-title pv-description"><title id="pv-title">柴油机循环压力–容积示意图</title><desc id="pv-description">横轴为缸内容积，纵轴为绝对压力，亮点标示当前曲轴角度对应的教学模型状态。</desc><g id="pv-grid"></g><g id="pv-paths"></g><circle id="pv-dot-halo" r="8" fill="#69ddbb" fill-opacity="0.13" /><circle id="pv-dot" r="3.8" fill="#69ddbb" stroke="#ecfff9" stroke-width="1.4" /></svg>
+            <div class="chart-legend"><span><i style="--legend-color:#b3a0f3"></i>压缩</span><span><i style="--legend-color:#f5ad66"></i>做功</span><span><i style="--legend-color:#69ddbb"></i>当前状态</span></div>
+            <p class="chart-note">理想柴油循环近似，含简化进排气过程。</p>
+          </section>
+
+          <div class="insight-card"><span class="insight-icon"><svg class="icon"><use href="#i-info" /></svg></span><div><strong>不是点燃，而是压燃。</strong><p>柴油喷入高温空气后自行着火，<br />无需火花塞。</p></div></div>
+        </aside>
+      </div>
+
+      <footer class="page-footer"><p><svg class="icon"><use href="#i-info" /></svg>教学模型：气门正时、燃烧与热力过程经过简化，不用于工程性能预测。</p><span>2 圈曲轴 <i>·</i> 4 个活塞行程 <i>·</i> 1 个工作循环</span></footer>
+    </main>
+
+    <dialog id="help-dialog" class="info-dialog" aria-labelledby="help-title"><div class="dialog-heading"><span class="eyebrow">QUICK START</span><button class="icon-button" type="button" data-close-dialog aria-label="关闭操作指南"><svg class="icon"><use href="#i-close" /></svg></button></div><h2 id="help-title">你的三维发动机实验台</h2><p class="dialog-intro">没有固定视角，每一个部件都值得转过来看一看。</p><div class="help-grid"><div><strong>旋转与缩放</strong><p>鼠标左键拖拽旋转，滚轮缩放，右键拖拽平移。触屏支持单指旋转、双指缩放与平移。</p></div><div><strong>剖视、透视与实体</strong><p>剖视移去前半侧缸体；透视保留透明外壳；实体还原完整外观。切换不会改变仿真角度。</p></div><div><strong>定格观察</strong><p>拖动时间轴或点击四个冲程卡片，会暂停在相应位置。步进按钮每次前进 10°。</p></div><div><strong>键盘操作</strong><p><kbd>空格</kbd> 播放 / 暂停，<kbd>←</kbd><kbd>→</kbd> 步进，<kbd>R</kbd> 重置视角。输入控件保留原生键盘操作。</p></div></div><div class="dialog-notice">为方便观察，1× 演示速度为真实时间的 1/60。默认 1,200 rpm 显示为 20 rpm，一个循环约 6 秒。转速只控制运动速度，不改变理想热力曲线。</div><button class="button button-primary dialog-done" type="button" data-close-dialog>开始探索 <svg class="icon"><use href="#i-arrow" /></svg></button></dialog>
+
+    <dialog id="principle-dialog" class="info-dialog" aria-labelledby="principle-title"><div class="dialog-heading"><span class="eyebrow">HOW IT WORKS</span><button class="icon-button" type="button" data-close-dialog aria-label="关闭工作原理"><svg class="icon"><use href="#i-close" /></svg></button></div><h2 id="principle-title">720°，完成一次能量转换</h2><p class="dialog-intro">同一个活塞位置，可能处于完全不同的工作冲程。</p><ol class="principle-list"><li><span style="--stroke-color:#55cbdc">01</span><div><strong>进气 / 0°–180°</strong><p>活塞从上止点移向下止点，进气门打开，气缸吸入空气。</p></div></li><li><span style="--stroke-color:#b3a0f3">02</span><div><strong>压缩 / 180°–360°</strong><p>气门关闭，空气被压缩升温；接近压缩上止点时开始喷入柴油。</p></div></li><li><span style="--stroke-color:#f5ad66">03</span><div><strong>做功 / 360°–540°</strong><p>柴油在高温空气中自行着火。高压燃气膨胀，经活塞、连杆推动曲轴转动。</p></div></li><li><span style="--stroke-color:#96a7b8">04</span><div><strong>排气 / 540°–720°</strong><p>排气门打开，活塞上行排出废气，接着进入下一次进气冲程。</p></div></li></ol><div class="dialog-notice"><strong>模型边界</strong><p>运动使用定长连杆的曲柄滑块几何。压力、温度基于定比热理想柴油循环（比热比 1.35、截止比 2.2），定压加热后等熵膨胀；忽略散热、摩擦、涡流、燃烧化学及真实配气重叠。喷油窗口为演示设定 350°–388°。颜色、粒子和部件局部细节用于解释原理，不是 CFD 或特定型号的制造模型。</p></div><button class="button button-primary dialog-done" type="button" data-close-dialog>返回实验台</button></dialog>
+
+    <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+    <noscript><div class="noscript-message">此三维仿真需要启用 JavaScript，并使用支持 WebGL 2 的现代浏览器。</div></noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
